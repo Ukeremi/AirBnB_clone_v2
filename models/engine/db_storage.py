@@ -30,8 +30,6 @@ class DBStorage:
     """
     A class for managing database storage using SQLAlchemy.
     """
-
-
     __engine = None
     __session = None
 
@@ -59,7 +57,8 @@ class DBStorage:
         Retrieve objects from the database.
 
         Args:
-            cls (class): The class of objects to retrieve. If None, retrieve all types.
+            cls (class): The class of objects to retrieve.
+            If None, retrieve all types.
 
         Returns:
             dict: A dictionary of objects in format {'class_name.id': object}.
