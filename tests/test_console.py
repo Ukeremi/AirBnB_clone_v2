@@ -170,5 +170,6 @@ class TestHBNBCommand(unittest.TestCase):
             cursor.close()
             db_connection.close()
 
+
 if __name__ == '__main__':
     unittest.main()

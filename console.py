@@ -77,7 +77,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] is '{' and pline[-1] is '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -119,14 +119,16 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        class_name, *param_pairs = re.findall(r'(\w+)=((?:".*?")|[-+]?\d+\.\d+|[-+]?\d+)', args)
+        class_name, *param_pairs = re.findall(
+            r'(\w+)=((?:".*?")|[-+]?\d+\.\d+|[-+]?\d+)', args
+        )
         if not class_name:
             print("** class name missing **")
             return
         elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        
+
         obj_kwargs = {}
         for key, value in param_pairs:
             if value.startswith('"') and value.endswith('"'):
@@ -135,12 +137,12 @@ class HBNBCommand(cmd.Cmd):
                 obj_kwargs[key] = float(value)
             else:
                 obj_kwargs[key] = int(value)
-        
+
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
             obj_kwargs.setdefault('id', str(uuid.uuid4()))
             obj_kwargs.setdefault('created_at', str(datetime.now()))
             obj_kwargs.setdefault('updated_at', str(datetime.now()))
-        
+
         new_instance = HBNBCommand.classes[class_name](**obj_kwargs)
         new_instance.save()
         print(new_instance.id)
@@ -338,6 +340,7 @@ class HBNBCommand(cmd.Cmd):
         """ Help information for the update class """
         print("Updates an object with new information")
         print("Usage: update <className> <id> <attName> <attVal>\n")
+
 
 if __name__ == "__main__":
     HBNBCommand().cmdloop()
