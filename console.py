@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 """ Console Module """
+import re
+import uuid
+from datetime import datetime
+import os
 import cmd
 import sys
 from models.base_model import BaseModel
@@ -115,16 +119,31 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        if not args:
+        class_name, *param_pairs = re.findall(r'(\w+)=((?:".*?")|[-+]?\d+\.\d+|[-+]?\d+)', args)
+        if not class_name:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+        elif class_name not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
+        
+        obj_kwargs = {}
+        for key, value in param_pairs:
+            if value.startswith('"') and value.endswith('"'):
+                obj_kwargs[key] = value[1:-1].replace('_', ' ')
+            elif '.' in value:
+                obj_kwargs[key] = float(value)
+            else:
+                obj_kwargs[key] = int(value)
+        
+        if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            obj_kwargs.setdefault('id', str(uuid.uuid4()))
+            obj_kwargs.setdefault('created_at', str(datetime.now()))
+            obj_kwargs.setdefault('updated_at', str(datetime.now()))
+        
+        new_instance = HBNBCommand.classes[class_name](**obj_kwargs)
+        new_instance.save()
         print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
