@@ -119,12 +119,46 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """Create an object of any class"""
-        # Extract class name and attribute-value pairs from args using regex
-        class_name, *attr_val_pairs = re.findall(
-            r'(\w+)=((?:".*?")|[-+]?\d+\.\d+|[-+]?\d+)', args
-        )
+        skipped_attrs = ('id', 'created_at', 'updated_at', '__class__')
+        class_name = ''
+        pattern = r'(?P<class_name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
 
-        # Check if class name is missing or doesn't exist
+        # Match the class name from the args
+        class_match = re.match(pattern, args)
+        data = {}
+
+        if class_match is not None:
+            class_name = class_match.group('class_name')
+            param_str = args[len(class_name):].strip()
+            params = param_str.split(' ')
+            param_pattern = (
+                r'{}=({}|{}|{})'.format(
+                    pattern,
+                    r'(?P<str_val>"([^"]|\")*")',
+                    r'(?P<float_val>[-+]?\d+\.\d+)',
+                    r'(?P<int_val>[-+]?\d+)'
+                )
+            )
+
+            for param in params:
+                param_match = re.fullmatch(param_pattern, param)
+                if param_match is not None:
+                    key_name = param_match.group('class_name')
+                    str_val = param_match.group('str_val')
+                    float_val = param_match.group('float_val')
+                    int_val = param_match.group('int_val')
+                    
+                    if float_val is not None:
+                        data[key_name] = float(float_val)
+                    if int_val is not None:
+                        data[key_name] = int(int_val)
+                    if str_val is not None:
+                        data[key_name] = str_val[1:-1].replace('_', ' ')
+
+        else:
+            class_name = args
+
+        # Check for missing class name or non-existent class
         if not class_name:
             print("** class name missing **")
             return
@@ -132,26 +166,24 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        # Prepare a dictionary to store attribute-value pairs
-        data = {}
-        for attr, value in attr_val_pairs:
-            if value.startswith('"') and value.endswith('"'):
-                data[attr] = value[1:-1].replace('_', ' ')
-            elif '.' in value:
-                data[attr] = float(value)
-            else:
-                data[attr] = int(value)
-
-        # If using database storage, set default values
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+            # Set default values if using database storage
             data.setdefault('id', str(uuid.uuid4()))
             data.setdefault('created_at', str(datetime.now()))
             data.setdefault('updated_at', str(datetime.now()))
 
-        # Create a new instance of the class and save it
-        new_instance = HBNBCommand.classes[class_name](**data)
-        new_instance.save()
-        print(new_instance.id)
+            # Create and save the instance
+            new_instance = HBNBCommand.classes[class_name](**data)
+            new_instance.save()
+            print(new_instance.id)
+        else:
+            # Create and save the instance with attributes
+            new_instance = HBNBCommand.classes[class_name]()
+            for key, value in data.items():
+                if key not in skipped_attrs:
+                    setattr(new_instance, key, value)
+            new_instance.save()
+            print(new_instance.id)
 
     def help_create(self):
         """ Help information for the create method """
