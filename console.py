@@ -147,7 +147,7 @@ class HBNBCommand(cmd.Cmd):
                     str_val = param_match.group('str_val')
                     float_val = param_match.group('float_val')
                     int_val = param_match.group('int_val')
-                    
+
                     if float_val is not None:
                         data[key_name] = float(float_val)
                     if int_val is not None:
