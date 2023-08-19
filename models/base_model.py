@@ -24,14 +24,14 @@ class BaseModel(Base):
         """Initialize the base model"""
         self.id = str(uuid.uuid4())
         self.created_at = self.updated_at = datetime.now()
-        
+
         # Update attributes if keyword arguments are provided
         if kwargs:
             for key, value in kwargs.items():
                 if key == '__class__':
                     continue
                 setattr(self, key, value)
-                
+
                 # Convert date strings to datetime objects
                 if key in ['created_at', 'updated_at']:
                     # Define the time format for date parsing
@@ -44,7 +44,10 @@ class BaseModel(Base):
                                          self.__dict__)
 
     def save(self):
-        """Update the 'updated_at' attribute with the current datetime and save to storage"""
+        """
+        Update the 'updated_at' attribute with
+        the current datetime and save to storage
+        """
         self.updated_at = datetime.now()
         models.storage.new(self)
         models.storage.save()
@@ -54,25 +57,25 @@ class BaseModel(Base):
         new_dict = self.__dict__.copy()
         new_dict["__class__"] = self.__class__.__name__
         new_dict.pop('_sa_instance_state', None)
-        
+
         # Convert datetimes to ISO format strings
         for key in ['created_at', 'updated_at']:
             if key in new_dict:
                 new_dict[key] = new_dict[key].isoformat()
-        
+
         # Rename '_password' to 'password' for serialization
         if '_password' in new_dict:
             new_dict['password'] = new_dict['_password']
             new_dict.pop('_password', None)
-        
+
         # Remove unnecessary attributes
         for key in ['amenities', 'reviews']:
             new_dict.pop(key, None)
-        
+
         # Remove 'password' attribute if not saving to disk
         if not save_to_disk:
             new_dict.pop('password', None)
-        
+
         return new_dict
 
     def delete(self):

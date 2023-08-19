@@ -7,6 +7,7 @@ import unittest
 import json
 import os
 
+
 @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
                  'BaseModel tests not supported for DB storage')
 class TestBaseModel(unittest.TestCase):

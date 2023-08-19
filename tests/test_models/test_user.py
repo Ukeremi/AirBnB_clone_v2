@@ -5,6 +5,7 @@ from tests.test_models.test_base_model import test_basemodel
 from models.user import User
 import os
 
+
 class TestUser(test_basemodel):
     """Test cases for the User class"""
 

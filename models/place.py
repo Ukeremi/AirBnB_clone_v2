@@ -8,7 +8,8 @@ import sqlalchemy
 from sqlalchemy import Column, String, Integer, Table, Float, ForeignKey
 from sqlalchemy.orm import relationship
 
-# Define the association table for the many-to-many relationship between Place and Amenity
+# Define the association table for the many-to-many relationship
+# between Place and Amenity
 if getenv('HBNB_TYPE_STORAGE') == 'db':
     place_amenity = Table(
         'place_amenity',
