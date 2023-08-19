@@ -176,7 +176,10 @@ class TestDBStorage(unittest.TestCase):
         self.assertEqual(old_count + 1, new_count)
         self.assertIn(new_user, storage.all().values())
 
-    def execute_query(self, query):
+    def execute_query(self, query, params=None):
         """Execute a MySQL query and return the result"""
-        self.cur.execute(query)
+        if params:
+            self.cur.execute(query, params)
+        else:
+            self.cur.execute(query)
         return self.cur.fetchone()[0]
