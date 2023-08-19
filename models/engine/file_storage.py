@@ -2,7 +2,7 @@
 """
 ALX HolbertonBnB - File and Database Storage
 
-This module defines the FileDBStorage class, which handles
+This module defines the FileStorage class, which handles
 the serialization and deserialization of objects to/from JSON format.
 It manages the storage of objects both in a file-based database and
 in a database managed by SQLAlchemy.
@@ -18,9 +18,9 @@ import json
 import os
 
 
-class FileDBStorage:
+class FileStorage:
     """
-    The FileDBStorage class handles the serialization and
+    The FileStorage class handles the serialization and
     deserialization of objects to/from JSON format and also manages objects
     in a database.
 
