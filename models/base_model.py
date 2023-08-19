@@ -37,7 +37,7 @@ class BaseModel:
                 # Convert date strings to datetime objects
                 if key in ['created_at', 'updated_at']:
                     # Define the time format for date parsing
-                    time_fmt = "%Y-%m-%dT%H:%M:%S.%f"
+                    time_fmt = "%Y-%m-%d %H:%M:%S.%f"
                     setattr(self, key, datetime.strptime(value, time_fmt))
 
     def __str__(self):
