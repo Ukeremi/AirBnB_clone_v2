@@ -8,7 +8,7 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 # Define the Base class based on the storage type
-Base = declarative_base() if getenv("HBNB_TYPE_STORAGE") == 'db' else object
+Base = declarative_base()
 
 
 class BaseModel:
