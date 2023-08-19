@@ -30,7 +30,7 @@
 ###############################################################################
 
 # Virtual environment directory
-.venv/
+venv/
 # Alternative virtual environment directory
 env/
 
