@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 """Unit tests for the Place class"""
 
-from tests.test_models.test_base_model import test_basemodel
+from tests.test_models.test_base_model import TestBaseModel
 from models.place import Place
 import os
 
 
-class TestPlace(test_basemodel):
+class TestPlace(TestBaseModel):
     """Test cases for the Place class"""
 
     def setUp(self):

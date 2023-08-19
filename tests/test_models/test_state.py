@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 """Unit tests for the State class"""
 
-from tests.test_models.test_base_model import test_basemodel
+from tests.test_models.test_base_model import TestBaseModel
 from models.state import State
 import os
 
 
-class TestState(test_basemodel):
+class TestState(TestBaseModel):
     """Test cases for the State class"""
 
     def __init__(self, *args, **kwargs):

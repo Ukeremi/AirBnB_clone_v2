@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 """Test cases for the City class"""
 
-from tests.test_models.test_base_model import test_basemodel
+from tests.test_models.test_base_model import TestBaseModel
 from models.city import City
 import os
 
 
-class TestCity(test_basemodel):
+class TestCity(TestBaseModel):
     """Test cases for the City class"""
 
     def __init__(self, *args, **kwargs):

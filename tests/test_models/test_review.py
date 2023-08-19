@@ -1,12 +1,12 @@
 #!/usr/bin/python3
 """Unit tests for the Review class"""
 
-from tests.test_models.test_base_model import test_basemodel
+from tests.test_models.test_base_model import TestBaseModel
 from models.review import Review
 import os
 
 
-class TestReview(test_basemodel):
+class TestReview(TestBaseModel):
     """Test cases for the Review class"""
 
     def __init__(self, *args, **kwargs):
