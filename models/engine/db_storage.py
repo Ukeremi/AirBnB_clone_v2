@@ -64,7 +64,7 @@ class DBStorage:
                     objects[obj.__class__.__name__ + '.' + obj.id] = obj
 
         return objects
-    
+
     def classes(self):
         """
         Returns a dictionary of valid classes and their references.
