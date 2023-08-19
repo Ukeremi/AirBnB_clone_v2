@@ -5,25 +5,8 @@ This module defines the DBStorage class for database storage using SQLAlchemy.
 
 import os
 from models.base_model import Base
-from models.amenity import Amenity
-from models.city import City
-from models.place import Place
-from models.state import State
-from models.review import Review
-from models.user import User
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-
-
-# Mapping of class names to their corresponding classes
-class_mapping = {
-    'Amenity': Amenity,
-    'City': City,
-    'Place': Place,
-    'State': State,
-    'Review': Review,
-    'User': User
-}
 
 
 class DBStorage:
@@ -58,7 +41,7 @@ class DBStorage:
 
         Args:
             cls (class): The class of objects to retrieve.
-            If None, retrieve all types.
+                         If None, retrieve all types.
 
         Returns:
             dict: A dictionary of objects in format {'class_name.id': object}.
@@ -67,8 +50,8 @@ class DBStorage:
             self.reload()
 
         objects = {}
-        if type(cls) == str:
-            cls = class_mapping.get(cls, None)
+        if isinstance(cls, str):
+            cls = self.classes().get(cls, None)
 
         if cls:
             # Retrieve objects of a specific class
@@ -76,11 +59,34 @@ class DBStorage:
                 objects[obj.__class__.__name__ + '.' + obj.id] = obj
         else:
             # Retrieve objects of all classes
-            for cls in class_mapping.values():
+            for cls in self.classes().values():
                 for obj in self.__session.query(cls):
                     objects[obj.__class__.__name__ + '.' + obj.id] = obj
 
         return objects
+    
+    def classes(self):
+        """
+        Returns a dictionary of valid classes and their references.
+        """
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.place import Place
+        from models.review import Review
+
+        classes = {
+            "BaseModel": BaseModel,
+            "User": User,
+            "State": State,
+            "City": City,
+            "Amenity": Amenity,
+            "Place": Place,
+            "Review": Review
+        }
+        return classes
 
     def reload(self):
         """
@@ -120,26 +126,51 @@ class DBStorage:
             self.__session.delete(obj)
 
     def close(self):
-        """Dispose of current session if active"""
+        """
+        Dispose of the current session if active.
+        """
         self.__session.remove()
 
     def get(self, cls, id):
-        """Retrieve an object"""
-        if cls is not None and type(cls) is str and id is not None and\
-           type(id) is str and cls in class_mapping:
-            cls = class_mapping[cls]
+        """
+        Retrieve an object.
+
+        Args:
+            cls (str): The class name of the object.
+            id (str): The ID of the object.
+
+        Returns:
+            object: The retrieved object, or None if not found.
+        """
+        if (
+            cls is not None
+            and isinstance(cls, str)
+            and id is not None
+            and isinstance(id, str)
+            and cls in self.classes()
+        ):
+            cls = self.classes()[cls]
             result = self.__session.query(cls).filter(cls.id == id).first()
             return result
         else:
             return None
 
     def count(self, cls=None):
-        """Count number of objects in storage"""
+        """
+        Count the number of objects in storage.
+
+        Args:
+            cls (str, optional): The class name of the objects to count.
+                                 If None, count all objects.
+
+        Returns:
+            int: The total count of objects.
+        """
         total = 0
-        if type(cls) == str and cls in class_mapping:
-            cls = class_mapping[cls]
+        if cls is None:
+            for cls_name in self.classes().keys():
+                total += self.__session.query(self.classes()[cls_name]).count()
+        elif isinstance(cls, str) and cls in self.classes():
+            cls = self.classes()[cls]
             total = self.__session.query(cls).count()
-        elif cls is None:
-            for cls in class_mapping.values():
-                total += self.__session.query(cls).count()
         return total
