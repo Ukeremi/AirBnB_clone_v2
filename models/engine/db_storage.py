@@ -3,7 +3,7 @@
 This module defines the DBStorage class for database storage using SQLAlchemy.
 """
 
-import os
+from os import getenv
 from models.base_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -22,17 +22,24 @@ class DBStorage:
         Creates the database engine and manages the session.
         """
         # Get MySQL connection details from environment variables
-        user = os.getenv('HBNB_MYSQL_USER')
-        passwd = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        database = os.getenv('HBNB_MYSQL_DB')
+        user = getenv('HBNB_MYSQL_USER')
+        passwd = getenv('HBNB_MYSQL_PWD')
+        host = getenv('HBNB_MYSQL_HOST')
+        database = getenv('HBNB_MYSQL_DB')
 
         # Create the SQLAlchemy engine
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'
-                                      .format(user, passwd, host, database))
+        self.__engine = create_engine(
+            'mysql+mysqldb://{}:{}@{}/{}'.format(
+                user,
+                passwd,
+                host,
+                database
+            ),
+            pool_pre_ping=True
+        )
 
         # Drop tables if environment is test
-        if os.getenv('HBNB_ENV') == 'test':
+        if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
@@ -129,7 +136,7 @@ class DBStorage:
         """
         Dispose of the current session if active.
         """
-        self.__session.remove()
+        self.__session.close()
 
     def get(self, cls, id):
         """
