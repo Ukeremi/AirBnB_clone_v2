@@ -86,8 +86,9 @@ class TestBaseModel(unittest.TestCase):
         model.firstname = 'Celestine'
         model.lastname = 'Akpanoko'
 
-        self.assertIn('firstname', model.to_dict())
-        self.assertIn('lastname', model.to_dict())
+        new_instance = BaseModel(firstname='Celestine')
+        self.assertIn('firstname', new_instance.to_dict())
+        self.assertIn('lastname', new_instance.to_dict())
         self.assertIn('firstname', self.value(firstname='Celestine').to_dict())
         self.assertIn('lastname', self.value(lastname='Akpanoko').to_dict())
 
@@ -154,9 +155,9 @@ class TestBaseModel(unittest.TestCase):
 
     def test_kwargs_one(self):
         """Test kwargs with one arg."""
-        n = {'name': 'test'}
-        new = self.value(**n)
-        self.assertEqual(new.name, n['name'])
+        n = {'id': '1'}
+        new = BaseModel(**n)
+        self.assertEqual(new.id, '1')
 
     def test_id(self):
         """Test id attribute of the model."""
