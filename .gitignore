@@ -100,6 +100,7 @@ file.json
 # Configuration files
 *.cfg
 *.conf
+mysql-connector-python.py
 # Environment-specific files
 *.env
 
