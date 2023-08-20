@@ -8,10 +8,10 @@ from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
 # Define the Base class based on the storage type
-Base = declarative_base()
+Base = declarative_base() if getenv("HBNB_TYPE_STORAGE") == 'db' else object
 
 
-class BaseModel:
+class BaseModel(Base):
     """The BaseModel class from which future classes will be derived"""
 
     if getenv("HBNB_TYPE_STORAGE") == 'db':
@@ -37,7 +37,7 @@ class BaseModel:
                 # Convert date strings to datetime objects
                 if key in ['created_at', 'updated_at']:
                     # Define the time format for date parsing
-                    time_fmt = "%Y-%m-%d %H:%M:%S.%f"
+                    time_fmt = "%Y-%m-%dT%H:%M:%S.%f"
                     setattr(self, key, datetime.strptime(value, time_fmt))
 
     def __str__(self):
