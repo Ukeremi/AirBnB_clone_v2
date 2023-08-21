@@ -30,7 +30,7 @@
 ###############################################################################
 
 # Virtual environment directory
-.venv/
+venv/
 # Alternative virtual environment directory
 env/
 
@@ -100,6 +100,7 @@ file.json
 # Configuration files
 *.cfg
 *.conf
+mysql-connector-python.py
 # Environment-specific files
 *.env
 
