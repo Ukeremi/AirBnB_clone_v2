@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base() if getenv("HBNB_TYPE_STORAGE") == 'db' else object
 
 
-class BaseModel(Base):
+class BaseModel:
     """The BaseModel class from which future classes will be derived"""
 
     if getenv("HBNB_TYPE_STORAGE") == 'db':
