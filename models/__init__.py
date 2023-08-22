@@ -4,6 +4,8 @@ This module instantiates an object of class FileStorage or DBStorage
 based on the environment variable.
 """
 from os import getenv
+from models.engine.db_storage import DBStorage
+from models.engine.file_storage import FileStorage
 
 
 if getenv('HBNB_storage_type') == "db":
