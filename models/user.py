@@ -4,6 +4,8 @@
 import hashlib
 import models
 from models.base_model import BaseModel, Base
+from models.place import Place
+from models.review import Reivew
 from os import getenv
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, String
