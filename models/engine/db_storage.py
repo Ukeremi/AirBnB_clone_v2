@@ -5,12 +5,6 @@ This module defines the DBStorage class for database storage using SQLAlchemy.
 
 from os import getenv
 from models.base_model import Base
-from models.state import State
-from models.user import User
-from models.city import City
-from models.place import Place
-from models.review import Review
-from models.amenity import Amenity
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
