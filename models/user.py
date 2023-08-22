@@ -14,9 +14,10 @@ from sqlalchemy import Column, String
 class User(BaseModel, Base):
     """Representation of a User"""
 
-    if getenv('HBNB_TYPE_STORAGE') == 'db':
         __tablename__ = 'users'
 
+    if getenv('HBNB_TYPE_STORAGE') == 'db':
+        
         email = Column(
             String(128),
             nullable=False
