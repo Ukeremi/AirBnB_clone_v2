@@ -15,10 +15,8 @@ class BaseModel:
     """The BaseModel class from which future classes will be derived"""
 
     id = Column(String(60), nullable=False, primary_key=True)
-    created_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False,
-                            default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
         """Initialize the base model"""
