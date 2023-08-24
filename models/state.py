@@ -22,12 +22,16 @@ class State(BaseModel, Base):
         cities = relationship(
             "City",
             cascade="all,delete",
-            backref="state"
+            backref="states"
         )
-
     else:
         name = ""
 
+    def __init__(self, *args, **kwargs):
+        """Initializes State"""
+        super().__init__(*args, **kwargs)
+
+    if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
         def cities(self):
             """Getter attribute that returns City instances"""
@@ -39,7 +43,3 @@ class State(BaseModel, Base):
                 if city.state_id == self.id
             ]
             return list_city
-
-    def __init__(self, *args, **kwargs):
-        """Initializes State"""
-        super().__init__(*args, **kwargs)
