@@ -7,12 +7,15 @@ from os import getenv
 from models.base_model import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.exc import SQLAlchemyError  # Import for error handling
 
 
 class DBStorage:
     """
     A class for managing database storage using SQLAlchemy.
     """
+
+    # Private class attributes
     __engine = None
     __session = None
 
@@ -22,10 +25,10 @@ class DBStorage:
         Creates the database engine and manages the session.
         """
         # Get MySQL connection details from environment variables
-        user = getenv('HBNB_MYSQL_USER')
-        passwd = getenv('HBNB_MYSQL_PWD')
-        host = getenv('HBNB_MYSQL_HOST')
-        database = getenv('HBNB_MYSQL_DB')
+        user = getenv('HBNB_MYSQL_USER', default='your_default_user')
+        passwd = getenv('HBNB_MYSQL_PWD', default='your_default_password')
+        host = getenv('HBNB_MYSQL_HOST', default='localhost')
+        database = getenv('HBNB_MYSQL_DB', default='your_default_db')
 
         # Create the SQLAlchemy engine
         self.__engine = create_engine(
@@ -35,12 +38,13 @@ class DBStorage:
                 host,
                 database
             ),
-            pool_pre_ping=True
+            pool_pre_ping=True  # Option specified as required
         )
+        self.__session = None  # Initialize the session here
 
-        # Drop tables if environment is test
+        # Drop tables if the environment is 'test'
         if getenv('HBNB_ENV') == 'test':
-            Base.metadata.drop_all(self.__engine)
+            Base.metadata.drop_all(self.__engine)  # Requirement implemented
 
     def all(self, cls=None):
         """
@@ -53,24 +57,21 @@ class DBStorage:
         Returns:
             dict: A dictionary of objects in format {'class_name.id': object}.
         """
-        if not self.__session:
-            self.reload()
-
-        objects = {}
-        if isinstance(cls, str):
-            cls = self.classes().get(cls, None)
-
+        # Query on the current database session (self.__session) all objects
+        # depending on the class name (argument cls)
         if cls:
-            # Retrieve objects of a specific class
+            if isinstance(cls, str):
+                cls = self.classes().get(cls)
+            result = {}
             for obj in self.__session.query(cls):
-                objects[obj.__class__.__name__ + '.' + obj.id] = obj
+                result[f"{obj.__class__.__name__}.{obj.id}"] = obj
+            return result
         else:
-            # Retrieve objects of all classes
+            objects = {}
             for cls in self.classes().values():
                 for obj in self.__session.query(cls):
                     objects[obj.__class__.__name__ + '.' + obj.id] = obj
-
-        return objects
+            return objects
 
     def classes(self):
         """
@@ -83,8 +84,7 @@ class DBStorage:
         from models.amenity import Amenity
         from models.place import Place
         from models.review import Review
-
-        classes = {
+        return {
             "BaseModel": BaseModel,
             "User": User,
             "State": State,
@@ -93,17 +93,18 @@ class DBStorage:
             "Place": Place,
             "Review": Review
         }
-        return classes
 
     def reload(self):
         """
-        Create all tables in the database and initialize a new session.
+        Reload the database and create a new session.
         """
-        session_factory = sessionmaker(bind=self.__engine,
-                                       expire_on_commit=False)
+        if self.__session:
+            self.__session.close()  # Close the current session
+        factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        # Create all tables in the database
         Base.metadata.create_all(self.__engine)
-        Session = scoped_session(session_factory)
-        self.__session = Session()
+        # Create the current database session
+        self.__session = scoped_session(factory)
 
     def new(self, obj):
         """
@@ -118,7 +119,12 @@ class DBStorage:
         """
         Commit all changes of the current database session.
         """
-        self.__session.commit()
+        try:
+            # Commit all changes of the current database session
+            self.__session.commit()
+        except SQLAlchemyError as e:
+            self.__session.rollback()
+            print("Error while saving to database:", str(e))  # Error handling
 
     def delete(self, obj=None):
         """
@@ -127,8 +133,6 @@ class DBStorage:
         Args:
             obj: The object to delete from the session.
         """
-        if not self.__session:
-            self.reload()
         if obj:
             self.__session.delete(obj)
 
@@ -136,7 +140,8 @@ class DBStorage:
         """
         Dispose of the current session if active.
         """
-        self.__session.close()
+        if self.__session:
+            self.__session.close()
 
     def get(self, cls, id):
         """
@@ -149,18 +154,10 @@ class DBStorage:
         Returns:
             object: The retrieved object, or None if not found.
         """
-        if (
-            cls is not None
-            and isinstance(cls, str)
-            and id is not None
-            and isinstance(id, str)
-            and cls in self.classes()
-        ):
+        if cls and isinstance(cls, str) and cls in self.classes():
             cls = self.classes()[cls]
-            result = self.__session.query(cls).filter(cls.id == id).first()
-            return result
-        else:
-            return None
+            return self.__session.query(cls).filter(cls.id == id).first()
+        return None
 
     def count(self, cls=None):
         """
@@ -173,11 +170,12 @@ class DBStorage:
         Returns:
             int: The total count of objects.
         """
+        if cls:
+            if isinstance(cls, str) and cls in self.classes():
+                cls = self.classes()[cls]
+                return self.__session.query(cls).count()
+            return 0
         total = 0
-        if cls is None:
-            for cls_name in self.classes().keys():
-                total += self.__session.query(self.classes()[cls_name]).count()
-        elif isinstance(cls, str) and cls in self.classes():
-            cls = self.classes()[cls]
-            total = self.__session.query(cls).count()
+        for cls_name in self.classes().keys():
+            total += self.__session.query(self.classes()[cls_name]).count()
         return total

@@ -78,6 +78,7 @@ dist/
 
 # SQLite database files
 *.sqlite3
+db.py
 # json file storage
 file.json
 
