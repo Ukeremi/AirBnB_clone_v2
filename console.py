@@ -66,7 +66,8 @@ class HBNBCommand(cmd.Cmd):
 
                 # Isolate _id, stripping quotes
                 _id = pline[0].replace('\"', '')
-                # Possible bug here: empty quotes register as empty _id when replaced
+                # Possible bug here: empty quotes register as 
+                # empty _id when replaced
 
                 # If arguments exist beyond _id
                 pline = pline[2].strip()  # pline is now str
@@ -184,7 +185,8 @@ class HBNBCommand(cmd.Cmd):
     def help_create(self):
         """Help information for the create method"""
         print("Creates an instance of a class")
-        print("[Usage]: create <className> [attribute_name=attribute_value ...]\n")
+        print("[Usage]: create <className> "
+              "[attribute_name=attribute_value ...]\n")
 
     def do_show(self, args):
         """Method to show an individual object"""
