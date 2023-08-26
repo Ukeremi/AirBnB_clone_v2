@@ -19,20 +19,20 @@ from models.review import Review
 class HBNBCommand(cmd.Cmd):
     """Contains the functionality for the HBNB console"""
 
-    # determines prompt for interactive/non-interactive modes
+    # Determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
     classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+        'BaseModel': BaseModel, 'User': User, 'Place': Place,
+        'State': State, 'City': City, 'Amenity': Amenity,
+        'Review': Review
+    }
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
-             'number_rooms': int, 'number_bathrooms': int,
-             'max_guest': int, 'price_by_night': int,
-             'latitude': float, 'longitude': float
-            }
+        'number_rooms': int, 'number_bathrooms': int,
+        'max_guest': int, 'price_by_night': int,
+        'latitude': float, 'longitude': float
+    }
 
     def preloop(self):
         """Prints if isatty is false"""
@@ -118,7 +118,11 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """Create an object of any class"""
+        """
+        Create an object of any class
+
+        Usage: create <className> [attribute_name=attribute_value ...]
+        """
         skipped_attrs = ('id', 'created_at', 'updated_at', '__class__')
         class_name = ''
         pattern = r'(?P<class_name>(?:[a-zA-Z]|_)(?:[a-zA-Z]|\d|_)*)'
@@ -166,6 +170,7 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
+        # Create and save the instance based on the storage type
         if os.getenv('HBNB_TYPE_STORAGE') == 'db':
             # Set default values if using database storage
             data.setdefault('id', str(uuid.uuid4()))
@@ -191,7 +196,11 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: create <className>\n")
 
     def do_show(self, args):
-        """Method to show an individual object"""
+        """
+        Show an individual object
+
+        Usage: show <className> <objectId>
+        """
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -224,7 +233,11 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: show <className> <objectId>\n")
 
     def do_destroy(self, args):
-        """Destroys a specified object"""
+        """
+        Destroys a specified object
+
+        Usage: destroy <className> <objectId>
+        """
         new = args.partition(" ")
         c_name = new[0]
         c_id = new[2]
@@ -257,7 +270,11 @@ class HBNBCommand(cmd.Cmd):
         print("[Usage]: destroy <className> <objectId>\n")
 
     def do_all(self, args):
-        """Shows all objects, or all objects of a class"""
+        """
+        Shows all objects, or all objects of a class
+
+        Usage: all [className]
+        """
         print_list = []
 
         if args:
