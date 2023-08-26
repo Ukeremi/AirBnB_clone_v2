@@ -223,7 +223,18 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            if os.getenv('HBNB_TYPE_STORAGE') == 'db':
+                # If using database storage,
+                # retrieve the object from the database
+                obj = storage.get(c_name, c_id)
+                if obj:
+                    print(obj)
+                else:
+                    print("** no instance found **")
+            else:
+                # If using file storage,
+                # retrieve the object from the __objects dictionary
+                print(storage._FileStorage__objects[key])
         except KeyError:
             print("** no instance found **")
 
