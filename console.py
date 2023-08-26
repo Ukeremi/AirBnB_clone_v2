@@ -390,6 +390,7 @@ class HBNBCommand(cmd.Cmd):
                 new_dict.__dict__.update({att_name: att_val})
 
         new_dict.save()  # save updates to file
+        storage.save()
 
     def help_update(self):
         """Help information for the update class"""
