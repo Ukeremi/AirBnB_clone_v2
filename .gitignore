@@ -31,6 +31,7 @@
 
 # Virtual environment directory
 venv/
+myenv/
 # Alternative virtual environment directory
 env/
 
