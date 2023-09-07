@@ -16,6 +16,7 @@ import os.path
 
 env.hosts = ['100.25.19.204', '54.157.159.85']
 
+
 def do_pack():
     """
     Create a tar gzipped archive of the web_static directory.
@@ -26,16 +27,17 @@ def do_pack():
     dt = datetime.utcnow()
     file_name = f"web_static_{dt:%Y%m%d%H%M%S}.tgz"
     target_dir = "versions"
-    
+
     if not os.path.exists(target_dir):
         local("mkdir -p {}".format(target_dir))
-    
+
     result = local("tar -czvf {}/{} web_static".format(target_dir, file_name))
-    
+
     if result.failed:
         return None
     else:
         return os.path.join(target_dir, file_name)
+
 
 def do_deploy(archive_path):
     """
@@ -49,15 +51,15 @@ def do_deploy(archive_path):
     """
     if not os.path.exists(archive_path):
         return False
-    
+
     file_name = os.path.basename(archive_path)
     name = file_name.split('.')[0]
     tmp_archive = "/tmp/{}".format(file_name)
     releases_dir = "/data/web_static/releases/{}".format(name)
-    
+
     if put(archive_path, tmp_archive).failed:
         return False
-    
+
     commands = [
         "rm -rf {}/".format(releases_dir),
         "mkdir -p {}/".format(releases_dir),
@@ -68,12 +70,13 @@ def do_deploy(archive_path):
         "rm -rf /data/web_static/current",
         "ln -s {} /data/web_static/current".format(releases_dir)
     ]
-    
+
     for cmd in commands:
         if run(cmd).failed:
             return False
-    
+
     return True
+
 
 def deploy():
     """

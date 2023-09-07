@@ -6,7 +6,7 @@ Usage:       fab -f 2-do_deploy_web_static.py
 Description: This Fabric script deploys a web_static archive to web servers.
              It uploads, uncompresses, & manages symbolic links - the archive.
 Author:      Alexander Udeogaranya
-Example:     fab -f 2-do_deploy_web_static.py 
+Example:     fab -f 2-do_deploy_web_static.py
                 do_deploy:archive_path=versions/web_static_20170315003959.tgz
 """
 
@@ -18,6 +18,7 @@ from os import path
 env.hosts = ['100.25.46.228', '54.236.222.22']
 env.user = 'ubuntu'
 env.key_filename = '~/.ssh/id_rsa'
+
 
 def upload_archive(archive_path, timestamp):
     """
@@ -32,11 +33,12 @@ def upload_archive(archive_path, timestamp):
     """
     archive_src = '/tmp/web_static_{}.tgz'.format(timestamp)
     archive_dst = '/data/web_static/releases/web_static_{}/'.format(timestamp)
-    
+
     put(archive_path, archive_src)
     run('sudo mkdir -p {}'.format(archive_dst))
     run('sudo tar -xzf {} -C {}'.format(archive_src, archive_dst))
     run('sudo rm {}'.format(archive_src))
+
 
 def move_contents(timestamp):
     """
@@ -55,6 +57,7 @@ def move_contents(timestamp):
     run('sudo mv {}* {}'.format(src_dir, dst_dir))
     run('sudo rm -rf {}'.format(src_dir))
 
+
 def recreate_symlink(timestamp):
     """
     Recreates the symbolic link for web_static.
@@ -70,6 +73,7 @@ def recreate_symlink(timestamp):
 
     run('sudo rm -rf {}'.format(current_link))
     run('sudo ln -s {} {}'.format(new_link, current_link))
+
 
 def do_deploy(archive_path):
     """
