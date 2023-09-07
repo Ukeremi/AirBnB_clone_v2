@@ -20,61 +20,6 @@ env.user = 'ubuntu'
 env.key_filename = '~/.ssh/id_rsa'
 
 
-def upload_archive(archive_path, timestamp):
-    """
-    Uploads the web_static archive to the server and uncompresses it.
-
-    Args:
-        archive_path (str): The path to the web_static archive.
-        timestamp (str): The timestamp for the archive.
-
-    Returns:
-        None
-    """
-    archive_src = '/tmp/web_static_{}.tgz'.format(timestamp)
-    archive_dst = '/data/web_static/releases/web_static_{}/'.format(timestamp)
-
-    put(archive_path, archive_src)
-    run('sudo mkdir -p {}'.format(archive_dst))
-    run('sudo tar -xzf {} -C {}'.format(archive_src, archive_dst))
-    run('sudo rm {}'.format(archive_src))
-
-
-def move_contents(timestamp):
-    """
-    Moves the contents of the web_static archive to the web_static directory.
-
-    Args:
-        timestamp (str): The timestamp for the archive.
-
-    Returns:
-        None
-    """
-    release_base = '/data/web_static/releases/web_static_{}/'.format(timestamp)
-    src_dir = release_base + 'web_static/'
-    dst_dir = release_base
-
-    run('sudo mv {}* {}'.format(src_dir, dst_dir))
-    run('sudo rm -rf {}'.format(src_dir))
-
-
-def recreate_symlink(timestamp):
-    """
-    Recreates the symbolic link for web_static.
-
-    Args:
-        timestamp (str): The timestamp for the archive.
-
-    Returns:
-        None
-    """
-    current_link = '/data/web_static/current'
-    new_link = '/data/web_static/releases/web_static_{}/'.format(timestamp)
-
-    run('sudo rm -rf {}'.format(current_link))
-    run('sudo ln -s {} {}'.format(new_link, current_link))
-
-
 def do_deploy(archive_path):
     """
     Deploys the web_static archive to the web servers.
@@ -89,18 +34,38 @@ def do_deploy(archive_path):
         if not path.exists(archive_path):
             return False
 
-        timestamp = archive_path[-18:-4]
+        # Extract the filename from the archive path
+        filename = archive_path.split("/")[-1]
+        # Remove the file extension (.tgz) to get the timestamp
+        timestamp = filename[:-4]
 
-        # Upload archive
-        upload_archive(archive_path, timestamp)
+        # Create paths
+        archive_src = "/tmp/" + filename
+        archive_dst = "/data/web_static/releases/" + timestamp
 
-        # Move contents
-        move_contents(timestamp)
+        # Upload the archive
+        put(archive_path, archive_src)
 
-        # Recreate symbolic link
-        recreate_symlink(timestamp)
+        # Create the destination directory
+        run("sudo mkdir -p {}".format(archive_dst))
+
+        # Extract the archive
+        run("sudo tar -xzf {} -C {}".format(archive_src, archive_dst))
+
+        # Delete the archive
+        run("sudo rm {}".format(archive_src))
+
+        # Move contents to the correct location
+        run("sudo mv {}/web_static/* {}".format(archive_dst, archive_dst))
+
+        # Remove the old symbolic link
+        run("sudo rm -rf /data/web_static/current")
+
+        # Create a new symbolic link
+        run("sudo ln -s {} /data/web_static/current".format(archive_dst))
+
+        return True
 
     except Exception as e:
         return False
 
-    return True
