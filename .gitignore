@@ -55,6 +55,7 @@ env/
 
 # Build directory
 build/
+versions/
 # Distribution directory
 dist/
 # Metadata for Python packages
