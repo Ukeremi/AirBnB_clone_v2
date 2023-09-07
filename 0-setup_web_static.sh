@@ -52,10 +52,11 @@ sudo chown -R ubuntu:ubuntu /data/
 nginx_config="/etc/nginx/sites-enabled/default"
 nginx_alias_config="location /hbnb_static {
     alias /data/web_static/current/;
+    index index.html index.htm;
 }"
 
 # Add the alias configuration to the Nginx default server block
-sudo sed -i "/listen 80 default_server/a $nginx_alias_config" "$nginx_config"
+sudo sed -i "/server_name _;/a $nginx_alias_config" "$nginx_config"
 
 # Restart Nginx to apply changes
 sudo service nginx restart
