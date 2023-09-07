@@ -26,16 +26,21 @@ sudo apt-get -y install nginx
 sudo ufw allow 'Nginx HTTP'
 
 # Create necessary directories
-sudo mkdir -p /data/web_static/{releases,test,shared}
+sudo mkdir -p /data/
+sudo mkdir -p /data/web_static/
+sudo mkdir -p /data/web_static/releases/
+sudo mkdir -p /data/web_static/shared/
+sudo mkdir -p /data/web_static/releases/test/
+sudo touch /data/web_static/releases/test/index.html
 
 # Create a fake HTML file for testing
-echo "<html>
+sudo echo "<html>
   <head>
   </head>
   <body>
     Holberton School
   </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
+</html>" | sudo tee /data/web_static/releases/test/index.html
 
 # Create or recreate the symbolic link to the test release
 sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
