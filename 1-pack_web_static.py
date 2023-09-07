@@ -1,12 +1,6 @@
 #!/usr/bin/python3
 """
-Script Name: 1-pack_web_static.py
-Usage:       fab -f 1-pack_web_static.py do_pack
-Description: This Fabric script generates a .tgz archive from the contents
-             of the web_static folder of your AirBnB Clone repository using
-             the do_pack function.
-Author:      Alexander Udeogaranya
-Example:     fab -f 1-pack_web_static.py do_pack
+Fabric script that Generates a .tgz archive
 """
 
 from fabric.api import local

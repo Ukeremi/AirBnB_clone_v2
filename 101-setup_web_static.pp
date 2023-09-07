@@ -1,16 +1,4 @@
-# Puppet script for setting up web_static
-# Author: Alexander Udeogaranya
-# Description: This Puppet script sets up web servers for the deployment
-#              of web_static on an Ubuntu system with Nginx.
-#              It performs the following tasks:
-#              - Installs Nginx if not already installed
-#              - Allows Nginx through the firewall
-#              - Creates necessary directories for web_static
-#              - Generates a fake HTML file for testing
-#              - Sets up symbolic links for web_static
-#              - Sets ownership to the ubuntu user and group recursively
-#              - Updates Nginx configuration to serve web_static content
-#              - Restarts Nginx to apply changes
+# Prepare web server for deployment with puppet
 
 # Nginx server configuration
 $nginx_conf = "

@@ -1,18 +1,14 @@
 #!/usr/bin/python3
 """
-Script Name: 100-clean_web_static.py
-Usage:       fab -f 100-clean_web_static.py do_clean:
-                number=2 -i my_ssh_private_key -u ubuntu
-Description: This Fabric script deletes out-of-date archives and
-                keeps a specified number of recent archives.
-Author:      Alexander Udeogaranya
+Deletes out-of-date archives,
+using the function do_clean
 """
 
 import os
 from fabric.api import env, run, local
 
 # Define the host servers and user
-env.hosts = ['100.25.46.228', '54.236.222.22']
+env.hosts = ['35.175.132.181', '52.91.126.56']
 env.user = 'ubuntu'
 env.key_filename = '~/.ssh/id_rsa'
 

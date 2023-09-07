@@ -1,13 +1,7 @@
 #!/usr/bin/python3
 """
-Script Name: 2-do_deploy_web_static.py
-Usage:       fab -f 2-do_deploy_web_static.py
-                do_deploy:archive_path=<path_to_archive>
-Description: This Fabric script deploys a web_static archive to web servers.
-             It uploads, uncompresses, & manages symbolic links - the archive.
-Author:      Alexander Udeogaranya
-Example:     fab -f 2-do_deploy_web_static.py
-                do_deploy:archive_path=versions/web_static_20170315003959.tgz
+Distributes an archive to my web servers,
+using the function do_deploy
 """
 
 from fabric.api import *
@@ -15,7 +9,7 @@ from datetime import datetime
 from os import path
 
 # Define the host servers and user
-env.hosts = ['100.25.46.228', '54.236.222.22']
+env.hosts = ['35.175.132.181', '52.91.126.56']
 env.user = 'ubuntu'
 env.key_filename = '~/.ssh/id_rsa'
 

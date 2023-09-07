@@ -1,20 +1,14 @@
 #!/usr/bin/python3
 """
-Script Name: 3-deploy_web_static.py
-Usage:       fab -f 3-deploy_web_static.py deploy
-Description: This Fabric script creates and deploys
-             a web_static archive to web servers.
-             It packages the web_static directory,
-             distributes it to the servers, and
-             updates the symbolic link.
-Author:      Alexander Udeogaranya
+Distributes an archive to my web servers,
+using the function deploy
 """
 
 from datetime import datetime
 from fabric.api import env, local, put, run
 import os.path
 
-env.hosts = ['100.25.19.204', '54.157.159.85']
+env.hosts = ['35.175.132.181', '52.91.126.56']
 
 
 def do_pack():
