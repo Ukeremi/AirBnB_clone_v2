@@ -1,4 +1,4 @@
-# Puppet for setup web_static
+# Puppet script for setting up web_static
 # Author: Alexander Udeogaranya
 # Description: This Puppet script sets up web servers for the deployment
 #              of web_static on an Ubuntu system with Nginx.
@@ -12,6 +12,7 @@
 #              - Updates Nginx configuration to serve web_static content
 #              - Restarts Nginx to apply changes
 
+# Nginx server configuration
 $nginx_conf = "
 server {
     listen 80 default_server;
@@ -34,83 +35,78 @@ server {
 }
 "
 
-class { 'nginx':
-  ensure => 'installed',
-  before => [
-    File['/data'],
-    File['/data/web_static'],
-    File['/data/web_static/releases'],
-    File['/data/web_static/shared'],
-  ],
+# Install Nginx package
+package { 'nginx':
+  ensure   => 'present',
+  provider => 'apt'
 }
 
-file { '/data':
-  ensure  => 'directory',
+# Create necessary directories
+-> file { '/data':
+  ensure  => 'directory'
 }
 
-file { '/data/web_static':
-  ensure => 'directory',
+-> file { '/data/web_static':
+  ensure => 'directory'
 }
 
-file { '/data/web_static/releases':
-  ensure => 'directory',
+-> file { '/data/web_static/releases':
+  ensure => 'directory'
 }
 
-file { '/data/web_static/releases/test':
-  ensure => 'directory',
+-> file { '/data/web_static/releases/test':
+  ensure => 'directory'
 }
 
-file { '/data/web_static/shared':
-  ensure => 'directory',
+-> file { '/data/web_static/shared':
+  ensure => 'directory'
 }
 
-file { '/data/web_static/releases/test/index.html':
-  ensure  => 'file',
-  content => "this webpage is found in data/web_static/releases/test/index.htm\n",
+# Generate a fake HTML file for testing
+-> file { '/data/web_static/releases/test/index.html':
+  ensure  => 'present',
+  content => "this webpage is found in data/web_static/releases/test/index.htm \n"
 }
 
-file { '/data/web_static/current':
+# Create or recreate the symbolic link to the test release
+-> file { '/data/web_static/current':
   ensure => 'link',
-  target => '/data/web_static/releases/test',
+  target => '/data/web_static/releases/test'
 }
 
-exec { 'chown -R ubuntu:ubuntu /data/':
-  path => ['/usr/bin/', '/usr/local/bin/', '/bin/'],
-  require => [
-    File['/data'],
-    File['/data/web_static'],
-    File['/data/web_static/releases'],
-    File['/data/web_static/shared'],
-    File['/data/web_static/releases/test/index.html'],
-    File['/data/web_static/current'],
-  ],
+# Set ownership to the ubuntu user and group recursively
+-> exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
 }
 
+# Create directories for the default website
 file { '/var/www':
-  ensure => 'directory',
+  ensure => 'directory'
 }
 
-file { '/var/www/html':
-  ensure => 'directory',
+-> file { '/var/www/html':
+  ensure => 'directory'
 }
 
-file { '/var/www/html/index.html':
-  ensure  => 'file',
-  content => "This is my first upload in /var/www/index.html***\n",
+# Create an index.html file for the default website
+-> file { '/var/www/html/index.html':
+  ensure  => 'present',
+  content => "This is my first upload  in /var/www/index.html***\n"
 }
 
-file { '/var/www/html/404.html':
-  ensure  => 'file',
-  content => "Ceci n'est pas une page - Error page\n",
+# Create a custom 404.html error page
+-> file { '/var/www/html/404.html':
+  ensure  => 'present',
+  content => "Ceci n'est pas une page - Error page\n"
 }
 
-file { '/etc/nginx/sites-available/default':
-  ensure  => 'file',
-  content => $nginx_conf,
+# Update Nginx configuration with the custom server block
+-> file { '/etc/nginx/sites-available/default':
+  ensure  => 'present',
+  content => $nginx_conf
 }
 
-service { 'nginx':
-  ensure    => 'running',
-  enable    => true,
-  subscribe => File['/etc/nginx/sites-available/default'],
+# Restart Nginx to apply changes
+-> exec { 'nginx restart':
+  path => '/etc/init.d/'
 }
