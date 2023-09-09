@@ -3,84 +3,59 @@
 Distributes an archive to my web servers,
 using the function deploy
 """
-
+from fabric.api import *
 from datetime import datetime
-from fabric.api import env, local, put, run
-import os.path
+import os
 
 env.hosts = ['35.175.132.181', '52.91.126.56']
-
-
-def do_pack():
-    """
-    Create a tar gzipped archive of the web_static directory.
-
-    Returns:
-        str: The path to the created archive on success, None on failure.
-    """
-    dt = datetime.utcnow()
-    file_name = f"web_static_{dt:%Y%m%d%H%M%S}.tgz"
-    target_dir = "versions"
-
-    if not os.path.exists(target_dir):
-        local("mkdir -p {}".format(target_dir))
-
-    result = local("tar -czvf {}/{} web_static".format(target_dir, file_name))
-
-    if result.failed:
-        return None
-    else:
-        return os.path.join(target_dir, file_name)
-
-
-def do_deploy(archive_path):
-    """
-    Distribute an archive to a web server and update the symbolic link.
-
-    Args:
-        archive_path (str): The path to the archive to be deployed.
-
-    Returns:
-        bool: True on success, False on failure.
-    """
-    if not os.path.exists(archive_path):
-        return False
-
-    file_name = os.path.basename(archive_path)
-    name = file_name.split('.')[0]
-    tmp_archive = "/tmp/{}".format(file_name)
-    releases_dir = "/data/web_static/releases/{}".format(name)
-
-    if put(archive_path, tmp_archive).failed:
-        return False
-
-    commands = [
-        "rm -rf {}/".format(releases_dir),
-        "mkdir -p {}/".format(releases_dir),
-        "tar -xzf {} -C {}/".format(tmp_archive, releases_dir),
-        "rm {}".format(tmp_archive),
-        "mv {}/web_static/* {}/".format(releases_dir, releases_dir),
-        "rm -rf {}/web_static".format(releases_dir),
-        "rm -rf /data/web_static/current",
-        "ln -s {} /data/web_static/current".format(releases_dir)
-    ]
-
-    for cmd in commands:
-        if run(cmd).failed:
-            return False
-
-    return True
+env.user = 'ubuntu'
 
 
 def deploy():
-    """
-    Create and distribute an archive to a web server
-    and update the symbolic link.
-
-    Returns:
-        bool: True on successful deployment, False on failure.
-    """
+    ''' Deploys archive '''
     archive_path = do_pack()
-    if archive_path is None:
+    if not archive_path:
         return False
     return do_deploy(archive_path)
+
+
+def do_pack():
+    '''
+    Generates a tgz archive from the
+    contents of the web_static folder
+    '''
+    try:
+        local('mkdir -p versions')
+        datetime_format = '%Y%m%d%H%M%S'
+        archive_path = 'versions/web_static_{}.tgz'.format(
+            datetime.now().strftime(datetime_format))
+        local('tar -cvzf {} web_static'.format(archive_path))
+        print('web_static packed: {} -> {}'.format(archive_path,
+              os.path.getsize(archive_path)))
+        return archive_path
+    except:
+        return None
+
+
+def do_deploy(archive_path):
+    '''
+    Deploy archive to web server
+    '''
+    if not os.path.exists(archive_path):
+        return False
+    file_name = archive_path.split('/')[1]
+    file_path = '/data/web_static/releases/'
+    releases_path = file_path + file_name[:-4]
+    try:
+        put(archive_path, '/tmp/')
+        run('mkdir -p {}'.format(releases_path))
+        run('tar -xzf /tmp/{} -C {}'.format(file_name, releases_path))
+        run('rm /tmp/{}'.format(file_name))
+        run('mv {}/web_static/* {}/'.format(releases_path, releases_path))
+        run('rm -rf {}/web_static'.format(releases_path))
+        run('rm -rf /data/web_static/current')
+        run('ln -s {} /data/web_static/current'.format(releases_path))
+        print('New version deployed!')
+        return True
+    except:
+        return False
